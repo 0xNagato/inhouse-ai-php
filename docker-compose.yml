@@ -1,0 +1,210 @@
+version: '3.8'
+
+services:
+  # PRIMA AI Agent Service (Node.js/TypeScript)
+  agent-service:
+    build:
+      context: ./agent-service
+      dockerfile: Dockerfile
+    container_name: prima-agent-service
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=gpt-4-turbo-preview
+      - LARAVEL_API_URL=http://laravel-app:8000/api
+      - LARAVEL_API_TOKEN=${LARAVEL_API_TOKEN}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_NAME=prima_ai
+      - DB_USER=prima_user
+      - DB_PASSWORD=${DB_PASSWORD}
+      - LOG_LEVEL=info
+      - API_RATE_LIMIT=100
+    volumes:
+      - ./agent-service:/app
+      - /app/node_modules
+      - ./logs:/app/logs
+    depends_on:
+      - postgres
+      - laravel-app
+    networks:
+      - prima-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"\]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Laravel Application
+  laravel-app:
+    build:
+      context: ./laravel
+      dockerfile: Dockerfile
+    container_name: prima-laravel-app
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_KEY=${LARAVEL_APP_KEY}
+      - DB_CONNECTION=pgsql
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_DATABASE=prima_ai
+      - DB_USERNAME=prima_user
+      - DB_PASSWORD=${DB_PASSWORD}
+      - CACHE_DRIVER=redis
+      - QUEUE_CONNECTION=redis
+      - SESSION_DRIVER=redis
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    volumes:
+      - ./laravel:/var/www/html
+      - ./storage:/var/www/html/storage
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - prima-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health"\]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: prima-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=prima_ai
+      - POSTGRES_USER=prima_user
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_INITDB_ARGS=--encoding=UTF-8 --lc-collate=C --lc-ctype=C
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d
+      - ./db/views.sql:/docker-entrypoint-initdb.d/02-views.sql
+      - ./db/indexes.sql:/docker-entrypoint-initdb.d/03-indexes.sql
+    networks:
+      - prima-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prima_user -d prima_ai"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Redis (for caching and sessions)
+  redis:
+    image: redis:7-alpine
+    container_name: prima-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - prima-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx (Web Server & Reverse Proxy)
+  nginx:
+    image: nginx:alpine
+    container_name: prima-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/sites:/etc/nginx/conf.d
+      - ./web-widget:/var/www/html/widget
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - agent-service
+      - laravel-app
+    networks:
+      - prima-network
+    restart: unless-stopped
+
+  # pgAdmin (Database Management - Development Only)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: prima-pgadmin
+    ports:
+      - "5050:80"
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@prima.ai
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD}
+      - PGADMIN_CONFIG_SERVER_MODE=False
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - prima-network
+    restart: unless-stopped
+    profiles:
+      - development
+
+  # Monitoring with Grafana & Prometheus (Optional)
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prima-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    networks:
+      - prima-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: prima-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    depends_on:
+      - prometheus
+    networks:
+      - prima-network
+    restart: unless-stopped
+    profiles:
+      - monitoring
+
+networks:
+  prima-network:
+    driver: bridge
+    name: prima-ai-network
+
+volumes:
+  postgres_data:
+    name: prima-postgres-data
+  redis_data:
+    name: prima-redis-data
+  pgadmin_data:
+    name: prima-pgadmin-data
+  prometheus_data:
+    name: prima-prometheus-data
+  grafana_data:
+    name: prima-grafana-data

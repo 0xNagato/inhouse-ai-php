@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PRIMA AI Chat Widget</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      .prima-chat-widget {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        width: 100%;
+        height: 600px;
+        border: 1px solid #e1e5e9;
+        border-radius: 12px;
+        overflow: hidden;
+        background: white;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+
+      .chat-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 20px;
+        text-align: center;
+        border-bottom: 1px solid #e1e5e9;
+      }
+
+      .chat-header h2 {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 4px;
+      }
+
+      .chat-header p {
+        font-size: 14px;
+        opacity: 0.9;
+      }
+
+      .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 20px;
+        background: #f8f9fa;
+      }
+
+      .message {
+        margin-bottom: 16px;
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .message.user {
+        flex-direction: row-reverse;
+      }
+
+      .message-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+
+      .message.bot .message-avatar {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .message.user .message-avatar {
+        background: #e9ecef;
+        color: #495057;
+      }
+
+      .message-content {
+        max-width: 70%;
+        padding: 12px 16px;
+        border-radius: 18px;
+        line-height: 1.4;
+        font-size: 14px;
+      }
+
+      .message.bot .message-content {
+        background: white;
+        border-bottom-left-radius: 4px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      }
+
+      .message.user .message-content {
+        background: #667eea;
+        color: white;
+        border-bottom-right-radius: 4px;
+      }
+
+      .function-call {
+        margin-top: 8px;
+        padding: 8px 12px;
+        background: #f1f3f4;
+        border-radius: 8px;
+        font-size: 12px;
+        color: #5f6368;
+        font-family: monospace;
+      }
+
+      .chat-input-container {
+        padding: 20px;
+        border-top: 1px solid #e1e5e9;
+        background: white;
+      }
+
+      .chat-input-form {
+        display: flex;
+        gap: 12px;
+      }
+
+      .chat-input {
+        flex: 1;
+        padding: 12px 16px;
+        border: 1px solid #dadce0;
+        border-radius: 24px;
+        font-size: 14px;
+        outline: none;
+        resize: none;
+        min-height: 48px;
+        max-height: 120px;
+      }
+
+      .chat-input:focus {
+        border-color: #667eea;
+      }
+
+      .send-button {
+        width: 48px;
+        height: 48px;
+        border: none;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: transform 0.1s ease;
+      }
+
+      .send-button:hover {
+        transform: scale(1.05);
+      }
+
+      .send-button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+      }
+
+      .typing-indicator {
+        display: none;
+        padding: 12px 16px;
+        background: white;
+        border-radius: 18px;
+        border-bottom-left-radius: 4px;
+        max-width: 70%;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      }
+
+      .typing-dots {
+        display: flex;
+        gap: 4px;
+      }
+
+      .typing-dots span {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #dadce0;
+        animation: typing 1.4s infinite ease-in-out;
+      }
+
+      .typing-dots span:nth-child(1) {
+        animation-delay: -0.32s;
+      }
+      .typing-dots span:nth-child(2) {
+        animation-delay: -0.16s;
+      }
+
+      @keyframes typing {
+        0%,
+        80%,
+        100% {
+          transform: scale(0.8);
+          opacity: 0.5;
+        }
+        40% {
+          transform: scale(1);
+          opacity: 1;
+        }
+      }
+
+      .error-message {
+        background: #fef7f0;
+        border: 1px solid #fdab3d;
+        color: #b45309;
+        padding: 12px;
+        border-radius: 8px;
+        margin: 8px 0;
+        font-size: 14px;
+      }
+
+      /* Mobile responsiveness */
+      @media (max-width: 768px) {
+        .prima-chat-widget {
+          height: 500px;
+        }
+
+        .chat-header {
+          padding: 16px;
+        }
+
+        .chat-messages {
+          padding: 16px;
+        }
+
+        .message-content {
+          max-width: 85%;
+          font-size: 14px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="prima-chat-widget" id="primaChat">
+      <div class="chat-header">
+        <h2>��️ PRIMA AI Assistant</h2>
+        <p>Find restaurants, check availability, and make reservations</p>
+      </div>
+
+      <div class="chat-messages" id="chatMessages">
+        <!-- Initial greeting message -->
+        <div class="message bot">
+          <div class="message-avatar">🤖</div>
+          <div class="message-content">
+            Hi! I'm PRIMA AI, your restaurant booking assistant. I can help you:
+            <br />• Find restaurants by cuisine, location, or price <br />•
+            Check table availability <br />• Make reservations <br /><br />What
+            can I help you with today?
+          </div>
+        </div>
+
+        <!-- Typing indicator -->
+        <div class="message bot" id="typingIndicator">
+          <div class="message-avatar">🤖</div>
+          <div class="typing-indicator">
+            <div class="typing-dots">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chat-input-container">
+        <form class="chat-input-form" id="chatForm">
+          <textarea
+            class="chat-input"
+            id="chatInput"
+            placeholder="Ask me about restaurants..."
+            rows="1"
+          ></textarea>
+          <button type="submit" class="send-button" id="sendButton">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+            </svg>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      class PrimaChatWidget {
+        constructor() {
+          this.apiUrl = window.PRIMA_API_URL || "http://localhost:3001/api";
+          this.sessionId = this.generateSessionId();
+          this.userRole = window.PRIMA_USER_ROLE || "user";
+          this.userId = window.PRIMA_USER_ID || null;
+
+          this.chatMessages = document.getElementById("chatMessages");
+          this.chatInput = document.getElementById("chatInput");
+          this.chatForm = document.getElementById("chatForm");
+          this.sendButton = document.getElementById("sendButton");
+          this.typingIndicator = document.getElementById("typingIndicator");
+
+          this.initializeEventListeners();
+          this.autoResizeTextarea();
+        }
+
+        generateSessionId() {
+          return (
+            "session_" +
+            Date.now() +
+            "_" +
+            Math.random().toString(36).substr(2, 9)
+          );
+        }
+
+        initializeEventListeners() {
+          this.chatForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            this.sendMessage();
+          });
+
+          this.chatInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              this.sendMessage();
+            }
+          });
+
+          this.chatInput.addEventListener("input", () => {
+            this.autoResizeTextarea();
+          });
+        }
+
+        autoResizeTextarea() {
+          this.chatInput.style.height = "auto";
+          this.chatInput.style.height =
+            Math.min(this.chatInput.scrollHeight, 120) + "px";
+        }
+
+        async sendMessage() {
+          const message = this.chatInput.value.trim();
+          if (!message) return;
+
+          // Add user message to chat
+          this.addMessage(message, "user");
+          this.chatInput.value = "";
+          this.autoResizeTextarea();
+
+          // Show typing indicator
+          this.showTypingIndicator();
+
+          try {
+            const response = await this.callChatAPI(message);
+            this.hideTypingIndicator();
+
+            if (response.message) {
+              this.addMessage(response.message, "bot", response.functionCalls);
+            } else {
+              throw new Error("No response message received");
+            }
+          } catch (error) {
+            this.hideTypingIndicator();
+            console.error("Chat API error:", error);
+            this.addErrorMessage(
+              "Sorry, I encountered an error. Please try again."
+            );
+          }
+        }
+
+        async callChatAPI(message) {
+          const response = await fetch(`${this.apiUrl}/chat`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              message: message,
+              sessionId: this.sessionId,
+              userId: this.userId,
+              context: {
+                role: this.userRole,
+                source: "web-widget",
+              },
+            }),
+          });
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(
+              errorData.message || `HTTP error! status: ${response.status}`
+            );
+          }
+
+          return await response.json();
+        }
+
+        addMessage(content, sender, functionCalls = null) {
+          const messageDiv = document.createElement("div");
+          messageDiv.className = `message ${sender}`;
+
+          const avatar = document.createElement("div");
+          avatar.className = "message-avatar";
+          avatar.textContent = sender === "user" ? "👤" : "🤖";
+
+          const messageContent = document.createElement("div");
+          messageContent.className = "message-content";
+          messageContent.innerHTML = this.formatMessage(content);
+
+          // Add function call details if present
+          if (functionCalls && functionCalls.length > 0) {
+            functionCalls.forEach((call) => {
+              const functionDiv = document.createElement("div");
+              functionDiv.className = "function-call";
+              functionDiv.textContent = `🔧 ${call.name}(${Object.keys(
+                call.arguments
+              ).join(", ")})`;
+              messageContent.appendChild(functionDiv);
+            });
+          }
+
+          messageDiv.appendChild(avatar);
+          messageDiv.appendChild(messageContent);
+
+          // Insert before typing indicator
+          this.chatMessages.insertBefore(messageDiv, this.typingIndicator);
+          this.scrollToBottom();
+        }
+
+        addErrorMessage(message) {
+          const errorDiv = document.createElement("div");
+          errorDiv.className = "error-message";
+          errorDiv.textContent = message;
+
+          this.chatMessages.insertBefore(errorDiv, this.typingIndicator);
+          this.scrollToBottom();
+        }
+
+        formatMessage(content) {
+          // Simple formatting for line breaks
+          return content.replace(/\n/g, "<br>");
+        }
+
+        showTypingIndicator() {
+          this.typingIndicator.style.display = "flex";
+          this.sendButton.disabled = true;
+          this.scrollToBottom();
+        }
+
+        hideTypingIndicator() {
+          this.typingIndicator.style.display = "none";
+          this.sendButton.disabled = false;
+        }
+
+        scrollToBottom() {
+          setTimeout(() => {
+            this.chatMessages.scrollTop = this.chatMessages.scrollHeight;
+          }, 100);
+        }
+      }
+
+      // Initialize the chat widget when the page loads
+      document.addEventListener("DOMContentLoaded", () => {
+        window.primaChat = new PrimaChatWidget();
+      });
+
+      // Global configuration
+      window.PrimaChat = {
+        setApiUrl: (url) => {
+          window.PRIMA_API_URL = url;
+        },
+        setUserRole: (role) => {
+          window.PRIMA_USER_ROLE = role;
+        },
+        setUserId: (userId) => {
+          window.PRIMA_USER_ID = userId;
+        },
+      };
+    </script>
+  </body>
+</html>
