@@ -1,7 +1,7 @@
 {
   "name": "inhouse-ai-agent-service",
   "version": "1.0.0",
-  "description": "PRIMA AI Agent Service - Function-calling chatbot with Laravel integration",
+  "description": "InHouse AI Agent Service - Function-calling chatbot with Laravel integration",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",
@@ -11,7 +11,7 @@
     "lint:fix": "eslint src/**/*.ts --fix"
   },
   "keywords": ["ai", "chatbot", "laravel", "function-calling", "fastify"],
-  "author": "PRIMA Team",
+  "author": "InHouse Team",
   "license": "MIT",
   "dependencies": {
     "fastify": "^4.24.3",

@@ -1,11 +1,11 @@
-# PRIMA AI - Restaurant Booking Agent
+# InHouse AI - Autonomous Booking Agent
 
 A sophisticated AI-powered restaurant booking system combining Node.js/TypeScript function-calling agents with Laravel backend and a responsive web widget.
 
 ## 🏗️ Architecture
 
 ```
-prima-ai/
+inhouse-ai/
 ├── agent-service/          # Node.js/TypeScript AI agent with OpenAI integration
 ├── laravel/               # PHP Laravel API backend
 ├── db/                    # Database views and indexes for AI optimization
@@ -27,7 +27,7 @@ prima-ai/
 
 1. **Clone or navigate to the repository:**
    ```bash
-   cd prima-ai
+   cd inhouse-ai
    ```
 
 2. **Run the setup script:**

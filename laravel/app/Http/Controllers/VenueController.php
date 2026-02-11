@@ -143,7 +143,7 @@ use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
-| API Routes for PRIMA AI Agent Integration
+| API Routes for InHouse AI Agent Integration
 |--------------------------------------------------------------------------
 */
 
@@ -184,7 +184,7 @@ Route::middleware(['auth:sanctum', 'throttle:60,1'])->group(function () {
         return response()->json([
             'status' => 'ok',
             'timestamp' => now(),
-            'service' => 'prima-ai-laravel-api'
+            'service' => 'inhouse-ai-laravel-api'
         ]);
     });
 });

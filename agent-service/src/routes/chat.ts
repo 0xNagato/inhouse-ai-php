@@ -128,7 +128,7 @@ export const chatRoute: FastifyPluginCallback = (fastify, options, done) => {
 };
 
 function generateSystemPrompt(userRole: string): string {
-  const basePrompt = `You are PRIMA AI, a helpful restaurant booking assistant. You can help users search for restaurants, check availability, and make reservations.
+  const basePrompt = `You are InHouse AI, a helpful restaurant booking assistant. You can help users search for restaurants, check availability, and make reservations.
 
 Current user role: ${userRole}
 

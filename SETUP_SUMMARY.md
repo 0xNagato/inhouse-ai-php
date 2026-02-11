@@ -1,4 +1,4 @@
-# PRIMA AI - Setup Complete! 🎉
+# InHouse AI - Setup Complete! 🎉
 
 ## What We Built
 
@@ -98,7 +98,7 @@ open http://localhost:5050
 
 ## 🎊 Success!
 
-Your PRIMA AI restaurant booking system is ready for deployment! The entire repository structure has been built incrementally with proper integration between all components.
+Your InHouse AI restaurant booking system is ready for deployment! The entire repository structure has been built incrementally with proper integration between all components.
 
 **Technologies Used:**
 - Node.js 18 + TypeScript

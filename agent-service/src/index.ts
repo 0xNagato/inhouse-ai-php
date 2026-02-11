@@ -51,7 +51,7 @@ async function start() {
     const host = process.env.HOST || '0.0.0.0';
 
     await fastify.listen({ port, host });
-    logger.info(`PRIMA AI Agent Service started on ${host}:${port}`);
+    logger.info(`InHouse AI Agent Service started on ${host}:${port}`);
   } catch (err) {
     logger.error('Error starting server:', err);
     process.exit(1);

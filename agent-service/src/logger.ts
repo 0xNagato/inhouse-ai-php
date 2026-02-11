@@ -10,7 +10,7 @@ export const logger = winston.createLogger({
     winston.format.errors({ stack: true }),
     winston.format.json()
   ),
-  defaultMeta: { service: 'prima-ai-agent' },
+  defaultMeta: { service: 'inhouse-ai-agent' },
   transports: [
     new winston.transports.File({
       filename: path.join(logDir, 'error.log'),
