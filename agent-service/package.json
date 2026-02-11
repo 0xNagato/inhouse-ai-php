@@ -1,5 +1,5 @@
 {
-  "name": "prima-ai-agent-service",
+  "name": "inhouse-ai-agent-service",
   "version": "1.0.0",
   "description": "PRIMA AI Agent Service - Function-calling chatbot with Laravel integration",
   "main": "dist/index.js",

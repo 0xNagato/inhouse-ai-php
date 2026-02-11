@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# PRIMA AI Setup Script
-# This script helps you set up the PRIMA AI repository
+# InHouse AI Setup Script
+# This script helps you set up the InHouse AI repository
 
 set -e
 
-echo "🚀 PRIMA AI Setup"
+echo "🚀 InHouse AI Setup"
 echo "=================="
 
 # Colors for output
@@ -246,7 +246,7 @@ start_services() {
 
 # Display service information
 show_services() {
-    print_success "PRIMA AI is now running!"
+    print_success "InHouse AI is now running!"
     echo ""
     echo "Service URLs:"
     echo "  🌐 Nginx Proxy:        http://localhost"

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PRIMA AI Chat Widget</title>
+    <title>InHouse AI Chat Widget</title>
     <style>
       * {
         margin: 0;
@@ -11,7 +11,7 @@
         box-sizing: border-box;
       }
 
-      .prima-chat-widget {
+      .ai-chat-widget {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
           sans-serif;
         width: 100%;
@@ -220,7 +220,7 @@
 
       /* Mobile responsiveness */
       @media (max-width: 768px) {
-        .prima-chat-widget {
+        .ai-chat-widget {
           height: 500px;
         }
 
@@ -240,9 +240,9 @@
     </style>
   </head>
   <body>
-    <div class="prima-chat-widget" id="primaChat">
+    <div class="ai-chat-widget" id="primaChat">
       <div class="chat-header">
-        <h2>��️ PRIMA AI Assistant</h2>
+        <h2>��️ InHouse AI Assistant</h2>
         <p>Find restaurants, check availability, and make reservations</p>
       </div>
 
@@ -251,7 +251,7 @@
         <div class="message bot">
           <div class="message-avatar">🤖</div>
           <div class="message-content">
-            Hi! I'm PRIMA AI, your restaurant booking assistant. I can help you:
+            Hi! I'm InHouse AI, your restaurant booking assistant. I can help you:
             <br />• Find restaurants by cuisine, location, or price <br />•
             Check table availability <br />• Make reservations <br /><br />What
             can I help you with today?
@@ -289,9 +289,9 @@
     </div>
 
     <script>
-      class PrimaChatWidget {
+      class AIChatWidget {
         constructor() {
-          this.apiUrl = window.PRIMA_API_URL || "http://localhost:3001/api";
+          this.apiUrl = window.AI_API_URL || "http://localhost:3001/api";
           this.sessionId = this.generateSessionId();
           this.userRole = window.PRIMA_USER_ROLE || "user";
           this.userId = window.PRIMA_USER_ID || null;
@@ -462,13 +462,13 @@
 
       // Initialize the chat widget when the page loads
       document.addEventListener("DOMContentLoaded", () => {
-        window.primaChat = new PrimaChatWidget();
+        window.primaChat = new AIChatWidget();
       });
 
       // Global configuration
       window.PrimaChat = {
         setApiUrl: (url) => {
-          window.PRIMA_API_URL = url;
+          window.AI_API_URL = url;
         },
         setUserRole: (role) => {
           window.PRIMA_USER_ROLE = role;
